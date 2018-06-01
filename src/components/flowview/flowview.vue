@@ -2,12 +2,62 @@
 
 div.content
   navigation(v-bind:flow = 'currentFlow')
-  div.card-group IF
-    triggercard(v-if = 'currentFlow.trigger' :card = 'currentFlow.trigger')
-  div.card-group(v-if = 'currentFlow.conditions') AND
-    conditioncard(v-for='card in currentFlow.conditions' :key = 'idForCard(card)' :card = 'card')
-  div.card-group(v-if = 'currentFlow.actions') THEN
-    actioncard(v-if = 'currentFlow.actions' v-for='card in currentFlow.actions' :key = 'idForCard(card)' :card = 'card')
+
+  // Trigger
+  div.card
+    header.card-header.has-background-light
+      p.card-header-title IF
+      a.card-header-icon
+        a.button.is-primary.is-outlined(v-if = '!currentFlow.trigger') Add card
+    div.card-content
+      div.content
+        triggercard(v-if = 'currentFlow.trigger' :card = 'currentFlow.trigger')
+
+  // Conditions
+  div.card(v-if = 'currentFlow.conditions')
+    header.card-header.has-background-light
+      p.card-header-title AND
+      a.card-header-icon
+        a.button.is-primary.is-outlined Add card
+        //a.button.is-primary.is-outlined Add or
+    div.card-content
+      div.content
+        conditioncard(v-for='card in currentFlow.conditions' :key = 'idForCard(card)' :card = 'card')
+    footer.card-footer
+      a.card-footer-item Add or
+
+  // Actions
+  div.card(v-if = 'currentFlow.actions')
+    header.card-header.has-background-light
+      p.card-header-title THEN
+      a.card-header-icon
+        a.button.is-primary.is-outlined(v-on:click="openModal()") Add card
+        //a.button.is-primary.is-outlined Add else
+    div.card-content
+      div.content
+        actioncard(v-if = 'currentFlow.actions' v-for='card in currentFlow.actions' :key = 'idForCard(card)' :card = 'card')
+    footer.card-footer
+      a.card-footer-item Add else
+
+  div.modal(v-if="this.editModal" :class="(this.editModal ? 'is-active' : '')")
+    div.modal-background
+    div.modal-card
+      header.modal-card-head
+        p.modal-card-title Add action
+        button.delete(v-on:click="closeModal()")
+      section.modal-card-body
+        div(v-for='cardGroup in cards' :key='cardGroup.uriObj.uri')
+          div.columns(v-for='cardElement in cardGroup.cards.action' :key='cardElement.id')
+            div.column.is-narrow.flow-icon-container
+              img.flow-icon(:src="$homey._baseUrl + cardGroup.uriObj.icon")
+            div.column.flow-title-container
+              div.columns.is-paddingless
+                div.column.has-text-left.is-marginless
+                  span.flow-title {{ cardElement.title.en }}
+      footer.modal-card-foot
+        button.button.is-success Save changes
+        button.button(v-on:click="closeModal()") Cancel
+
 
 </template>
 
@@ -35,6 +85,7 @@ export default {
   },
   data() {
     return {
+      editModal: false,
       currentFlow: {},
       cards: {}
     };
@@ -44,6 +95,12 @@ export default {
     this.getData(this.$route.params.flow);
   },
   methods: {
+    openModal() {
+      this.editModal = true;
+    },
+    closeModal() {
+      this.editModal = false;
+    },
     idForCard(card) {
       if (card.uri === 'homey:manager:flow') {
         if (card.args && card.args.flow && card.args.flow.id) {
@@ -57,6 +114,7 @@ export default {
         this.getCards(),
         this.getFlow(flow)
       ]).then(([ cards, flow ]) => {
+        this.cards = cards;
         this.cardsByUri = cards.reduce((acc, card) => {
           acc[card.uri] = {
             triggers   : reduceFlowType(card.cards.trigger   || []),
@@ -105,5 +163,19 @@ export default {
   text-align center
   width 80%
   margin auto
+
+.flow-icon-container
+  display flex
+  justify-content center
+  align-items center
+  img
+    height 55px
+    width 55px
+    -webkit-mask-size contain
+    -webkit-mask-position top left
+    -webkit-mask-repeat no-repeat
+
+.flow-title
+  font-weight bold
 
 </style>
