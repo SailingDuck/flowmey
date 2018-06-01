@@ -21,8 +21,9 @@ export default {
 </script>
 
 <style scope lang='stylus'>
+@import '~styles/variables.styl'
 
 .flow-action-card
-  border-color inherit
+  border-color color-action !important
 
 </style>

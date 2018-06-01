@@ -19,8 +19,9 @@ export default {
 </script>
 
 <style scope lang='stylus'>
+@import '~styles/variables.styl'
 
 .flow-trigger-card
-  border-color red !important
+  border-color color-trigger !important
 
 </style>

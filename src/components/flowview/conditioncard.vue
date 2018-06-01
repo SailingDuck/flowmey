@@ -21,8 +21,9 @@ export default {
 </script>
 
 <style scope lang='stylus'>
+@import '~styles/variables.styl'
 
 .flow-condition-card
-  border-color green !important
+  border-color color-condition !important
 
 </style>
