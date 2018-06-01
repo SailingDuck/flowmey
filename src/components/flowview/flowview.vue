@@ -58,7 +58,6 @@ div.content
         button.button.is-success Save changes
         button.button(v-on:click="closeModal()") Cancel
 
-
 </template>
 
 <script>
